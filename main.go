@@ -17,6 +17,8 @@ import (
 	"strings"
 	"syscall"
 
+	"nofx/libs/zklink"
+
 	"github.com/joho/godotenv"
 )
 
@@ -151,6 +153,20 @@ func loadBetaCodesToDatabase(database *config.Database) error {
 }
 
 func main() {
+
+	seeds := "hello world9999999999999999999999999999999999999"
+	signer, err := zklink.NewZkSignerFromSeeds([]byte(seeds))
+	if err != nil {
+		fmt.Println("❌ 初始化ZkSigner失败: %v", err)
+		return
+	}
+	signature, err := signer.SignMuSig(seeds)
+	if err != nil {
+		fmt.Println("❌ 签名失败: %v", err)
+		return
+	}
+	fmt.Println("signature: ", signature)
+
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║    🤖 AI多模型交易系统 - 支持 DeepSeek & Qwen            ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")

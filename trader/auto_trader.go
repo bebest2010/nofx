@@ -39,6 +39,12 @@ type AutoTraderConfig struct {
 	AsterSigner     string // Aster API钱包地址
 	AsterPrivateKey string // Aster API钱包私钥
 
+	// Apex配置
+	ApexOmniSeeds  string
+	ApexAPIKey     string
+	ApexSecret     string
+	ApexPassphrase string
+
 	CoinPoolAPIURL string
 
 	// AI配置
@@ -190,6 +196,13 @@ func NewAutoTrader(config AutoTraderConfig, database interface{}, userID string)
 		if err != nil {
 			return nil, fmt.Errorf("初始化Aster交易器失败: %w", err)
 		}
+	case "apex":
+		log.Printf("🏦 [%s] 使用Apex交易", config.Name)
+		trader, err = NewApexTrader(config.ApexOmniSeeds, config.ApexAPIKey, config.ApexSecret, config.ApexPassphrase)
+		if err != nil {
+			return nil, fmt.Errorf("初始化Apex交易器失败: %w", err)
+		}
+
 	default:
 		return nil, fmt.Errorf("不支持的交易平台: %s", config.Exchange)
 	}
