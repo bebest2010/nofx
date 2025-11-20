@@ -458,6 +458,12 @@ type UpdateExchangeConfigRequest struct {
 		AsterUser             string `json:"aster_user"`
 		AsterSigner           string `json:"aster_signer"`
 		AsterPrivateKey       string `json:"aster_private_key"`
+
+		// apex 特定字段
+		ApexOmniSeeds  string `json:"apexOmniSeeds"`
+		ApexApiKey     string `json:"apexApiKey"`
+		ApexSecret     string `json:"apexSecret"`
+		ApexPassphrase string `json:"apexPassphrase"`
 	} `json:"exchanges"`
 }
 
@@ -577,6 +583,14 @@ func (s *Server) handleCreateTrader(c *gin.Context) {
 				exchangeCfg.AsterUser,
 				exchangeCfg.AsterSigner,
 				exchangeCfg.AsterPrivateKey,
+			)
+		case "apex":
+			tempTrader, createErr = trader.NewApexTrader(
+				exchangeCfg.ApexOmniSeeds,
+				exchangeCfg.ApexApiKey,
+				exchangeCfg.ApexSecret,
+				exchangeCfg.ApexPassphrase,
+				exchangeCfg.Testnet,
 			)
 		default:
 			log.Printf("⚠️ 不支持的交易所类型: %s，使用用户输入的初始资金", req.ExchangeID)
@@ -1122,8 +1136,9 @@ func (s *Server) handleUpdateExchangeConfigs(c *gin.Context) {
 	log.Printf("🔓 已解密交易所配置数据 (UserID: %s)", userID)
 
 	// 更新每个交易所的配置
+
 	for exchangeID, exchangeData := range req.Exchanges {
-		err := s.database.UpdateExchange(userID, exchangeID, exchangeData.Enabled, exchangeData.APIKey, exchangeData.SecretKey, exchangeData.Testnet, exchangeData.HyperliquidWalletAddr, exchangeData.AsterUser, exchangeData.AsterSigner, exchangeData.AsterPrivateKey)
+		err := s.database.UpdateExchange(userID, exchangeID, exchangeData.Enabled, exchangeData.APIKey, exchangeData.SecretKey, exchangeData.Testnet, exchangeData.HyperliquidWalletAddr, exchangeData.AsterUser, exchangeData.AsterSigner, exchangeData.AsterPrivateKey, exchangeData.ApexOmniSeeds, exchangeData.ApexApiKey, exchangeData.ApexSecret, exchangeData.ApexPassphrase)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("更新交易所 %s 失败: %v", exchangeID, err)})
 			return

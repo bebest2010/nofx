@@ -44,6 +44,11 @@ func SanitizeExchangeConfigForLog(exchanges map[string]struct {
 	AsterUser             string `json:"aster_user"`
 	AsterSigner           string `json:"aster_signer"`
 	AsterPrivateKey       string `json:"aster_private_key"`
+	// apex 特定字段
+	ApexOmniSeeds  string `json:"apexOmniSeeds"`
+	ApexApiKey     string `json:"apexApiKey"`
+	ApexSecret     string `json:"apexSecret"`
+	ApexPassphrase string `json:"apexPassphrase"`
 }) map[string]interface{} {
 	safe := make(map[string]interface{})
 	for exchangeID, cfg := range exchanges {

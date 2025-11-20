@@ -244,6 +244,10 @@ func (d *Database) createTables() error {
 		`ALTER TABLE exchanges ADD COLUMN aster_user TEXT DEFAULT ''`,
 		`ALTER TABLE exchanges ADD COLUMN aster_signer TEXT DEFAULT ''`,
 		`ALTER TABLE exchanges ADD COLUMN aster_private_key TEXT DEFAULT ''`,
+		`ALTER TABLE exchanges ADD COLUMN apex_omni_seeds TEXT DEFAULT ''`,
+		`ALTER TABLE exchanges ADD COLUMN apex_api_key TEXT DEFAULT ''`,
+		`ALTER TABLE exchanges ADD COLUMN apex_secret TEXT DEFAULT ''`,
+		`ALTER TABLE exchanges ADD COLUMN apex_passphrase TEXT DEFAULT ''`,
 		`ALTER TABLE traders ADD COLUMN custom_prompt TEXT DEFAULT ''`,
 		`ALTER TABLE traders ADD COLUMN override_base_prompt BOOLEAN DEFAULT 0`,
 		`ALTER TABLE traders ADD COLUMN is_cross_margin BOOLEAN DEFAULT 1`,             // 默认为全仓模式
@@ -374,6 +378,10 @@ func (d *Database) migrateExchangesTable() error {
 			aster_user TEXT DEFAULT '',
 			aster_signer TEXT DEFAULT '',
 			aster_private_key TEXT DEFAULT '',
+			apex_omni_seeds TEXT DEFAULT '',
+			apex_api_key TEXT DEFAULT '',
+			apex_secret TEXT DEFAULT '',
+			apex_passphrase TEXT DEFAULT '',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id, user_id),
@@ -461,11 +469,16 @@ type ExchangeConfig struct {
 	// Reference: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/nonces-and-api-wallets
 	HyperliquidWalletAddr string `json:"hyperliquidWalletAddr"` // Main Wallet Address (holds funds, never expose private key)
 	// Aster 特定字段
-	AsterUser       string    `json:"asterUser"`
-	AsterSigner     string    `json:"asterSigner"`
-	AsterPrivateKey string    `json:"asterPrivateKey"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	AsterUser       string `json:"asterUser"`
+	AsterSigner     string `json:"asterSigner"`
+	AsterPrivateKey string `json:"asterPrivateKey"`
+	// apex 特定字段
+	ApexOmniSeeds  string    `json:"apexOmniSeeds"`
+	ApexApiKey     string    `json:"apexApiKey"`
+	ApexSecret     string    `json:"apexSecret"`
+	ApexPassphrase string    `json:"apexPassphrase"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 // TraderRecord 交易员配置（数据库实体）
@@ -739,6 +752,10 @@ func (d *Database) GetExchanges(userID string) ([]*ExchangeConfig, error) {
 		       COALESCE(aster_user, '') as aster_user,
 		       COALESCE(aster_signer, '') as aster_signer,
 		       COALESCE(aster_private_key, '') as aster_private_key,
+			   COALESCE(apex_omni_seeds, '') as apex_omni_seeds,
+			   COALESCE(apex_api_key, '') as apex_api_key,
+			   COALESCE(apex_secret, '') as apex_secret,
+			   COALESCE(apex_passphrase, '') as apex_passphrase,
 		       created_at, updated_at 
 		FROM exchanges WHERE user_id = ? ORDER BY id
 	`, userID)
@@ -755,7 +772,7 @@ func (d *Database) GetExchanges(userID string) ([]*ExchangeConfig, error) {
 			&exchange.ID, &exchange.UserID, &exchange.Name, &exchange.Type,
 			&exchange.Enabled, &exchange.APIKey, &exchange.SecretKey, &exchange.Testnet,
 			&exchange.HyperliquidWalletAddr, &exchange.AsterUser,
-			&exchange.AsterSigner, &exchange.AsterPrivateKey,
+			&exchange.AsterSigner, &exchange.AsterPrivateKey, &exchange.ApexOmniSeeds, &exchange.ApexApiKey, &exchange.ApexSecret, &exchange.ApexPassphrase,
 			&exchange.CreatedAt, &exchange.UpdatedAt,
 		)
 		if err != nil {
@@ -775,7 +792,7 @@ func (d *Database) GetExchanges(userID string) ([]*ExchangeConfig, error) {
 
 // UpdateExchange 更新交易所配置，如果不存在则创建用户特定配置
 // 🔒 安全特性：空值不会覆盖现有的敏感字段（api_key, secret_key, aster_private_key）
-func (d *Database) UpdateExchange(userID, id string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey string) error {
+func (d *Database) UpdateExchange(userID, id string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey, apexOmniSeeds, apexApikey, apexSecret, apexPassphrase string) error {
 	log.Printf("🔧 UpdateExchange: userID=%s, id=%s, enabled=%v", userID, id, enabled)
 
 	// 构建动态 UPDATE SET 子句
@@ -807,6 +824,26 @@ func (d *Database) UpdateExchange(userID, id string, enabled bool, apiKey, secre
 		encryptedAsterPrivateKey := d.encryptSensitiveData(asterPrivateKey)
 		setClauses = append(setClauses, "aster_private_key = ?")
 		args = append(args, encryptedAsterPrivateKey)
+	}
+
+	if apexOmniSeeds != "" {
+		setClauses = append(setClauses, "apex_omni_seeds = ?")
+		args = append(args, apexOmniSeeds)
+	}
+
+	if apexApikey != "" {
+		setClauses = append(setClauses, "apex_api_key = ?")
+		args = append(args, apexApikey)
+	}
+
+	if apexSecret != "" {
+		setClauses = append(setClauses, "apex_secret = ?")
+		args = append(args, apexSecret)
+	}
+
+	if apexPassphrase != "" {
+		setClauses = append(setClauses, "apex_passphrase = ?")
+		args = append(args, apexSecret)
 	}
 
 	// WHERE 条件
@@ -849,6 +886,9 @@ func (d *Database) UpdateExchange(userID, id string, enabled bool, apiKey, secre
 		} else if id == "aster" {
 			name = "Aster DEX"
 			typ = "dex"
+		} else if id == "apex" {
+			name = "Apex DEX"
+			typ = "dex"
 		} else {
 			name = id + " Exchange"
 			typ = "cex"
@@ -859,9 +899,9 @@ func (d *Database) UpdateExchange(userID, id string, enabled bool, apiKey, secre
 		// 创建用户特定的配置，使用原始的交易所ID
 		_, err = d.db.Exec(`
 			INSERT INTO exchanges (id, user_id, name, type, enabled, api_key, secret_key, testnet,
-			                       hyperliquid_wallet_addr, aster_user, aster_signer, aster_private_key, created_at, updated_at)
+			                       hyperliquid_wallet_addr, aster_user, aster_signer, aster_private_key, apex_omni_seeds, apex_api_key, apex_secret, apex_passphrase, created_at, updated_at)
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-		`, id, userID, name, typ, enabled, apiKey, secretKey, testnet, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey)
+		`, id, userID, name, typ, enabled, apiKey, secretKey, testnet, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey, apexOmniSeeds, apexApikey, apexSecret, apexPassphrase)
 
 		if err != nil {
 			log.Printf("❌ UpdateExchange: 创建记录失败: %v", err)
@@ -885,16 +925,16 @@ func (d *Database) CreateAIModel(userID, id, name, provider string, enabled bool
 }
 
 // CreateExchange 创建交易所配置
-func (d *Database) CreateExchange(userID, id, name, typ string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey string) error {
+func (d *Database) CreateExchange(userID, id, name, typ string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey, apexOmniSeeds, apexApikey, apexSecret, apexPassphrase string) error {
 	// 加密敏感字段
 	encryptedAPIKey := d.encryptSensitiveData(apiKey)
 	encryptedSecretKey := d.encryptSensitiveData(secretKey)
 	encryptedAsterPrivateKey := d.encryptSensitiveData(asterPrivateKey)
 
 	_, err := d.db.Exec(`
-		INSERT OR IGNORE INTO exchanges (id, user_id, name, type, enabled, api_key, secret_key, testnet, hyperliquid_wallet_addr, aster_user, aster_signer, aster_private_key) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, id, userID, name, typ, enabled, encryptedAPIKey, encryptedSecretKey, testnet, hyperliquidWalletAddr, asterUser, asterSigner, encryptedAsterPrivateKey)
+		INSERT OR IGNORE INTO exchanges (id, user_id, name, type, enabled, api_key, secret_key, testnet, hyperliquid_wallet_addr, aster_user, aster_signer, aster_private_key, apex_omni_seeds, apex_api_key, apex_secret, apex_passphrase) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, id, userID, name, typ, enabled, encryptedAPIKey, encryptedSecretKey, testnet, hyperliquidWalletAddr, asterUser, asterSigner, encryptedAsterPrivateKey, apexOmniSeeds, apexApikey, apexSecret, apexPassphrase)
 	return err
 }
 

@@ -289,4 +289,4 @@ ALTER TABLE exchanges ADD COLUMN new_exchange_secret_key TEXT;
 
 
 
-CGO_LDFLAGS="-lzklink_sdk -L/Users/dlmbp015/go/src/github.com/bebest2010/nofx/libs/mac_arm64_release -lm -ldl"  CGO_ENABLED=1 go build
+CGO_LDFLAGS="-lzklink_sdk -L./libs/mac_arm64_release -lm"  CGO_ENABLED=1 go build
