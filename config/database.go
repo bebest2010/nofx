@@ -480,7 +480,7 @@ type ExchangeConfig struct {
 	AsterPrivateKey string `json:"asterPrivateKey"`
 	// apex 特定字段
 	ApexOmniSeeds  string    `json:"apexOmniSeeds"`
-	ApexApiKey     string    `json:"apexApiKey"`
+	ApexApikey     string    `json:"apexApikey"`
 	ApexSecret     string    `json:"apexSecret"`
 	ApexPassphrase string    `json:"apexPassphrase"`
 	CreatedAt      time.Time `json:"created_at"`
@@ -778,7 +778,7 @@ func (d *Database) GetExchanges(userID string) ([]*ExchangeConfig, error) {
 			&exchange.ID, &exchange.UserID, &exchange.Name, &exchange.Type,
 			&exchange.Enabled, &exchange.APIKey, &exchange.SecretKey, &exchange.Testnet,
 			&exchange.HyperliquidWalletAddr, &exchange.AsterUser,
-			&exchange.AsterSigner, &exchange.AsterPrivateKey, &exchange.ApexOmniSeeds, &exchange.ApexApiKey, &exchange.ApexSecret, &exchange.ApexPassphrase,
+			&exchange.AsterSigner, &exchange.AsterPrivateKey, &exchange.ApexOmniSeeds, &exchange.ApexApikey, &exchange.ApexSecret, &exchange.ApexPassphrase,
 			&exchange.CreatedAt, &exchange.UpdatedAt,
 		)
 		if err != nil {

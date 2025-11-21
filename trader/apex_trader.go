@@ -310,9 +310,9 @@ func (t *ApexTrader) GetBalance() (map[string]interface{}, error) {
 	availableBalance, _ := strconv.ParseFloat(accontInfo.AvailableBalance, 64)
 	totalUnrealizedProfit, _ := strconv.ParseFloat(accontInfo.UnrealizedPnl, 64)
 	return map[string]interface{}{
-		"totalWalletBalance":    totalBalance,          // 钱包余额
-		"availableBalance":      availableBalance,      // 可用余额
-		"totalUnrealizedProfit": totalUnrealizedProfit, // 未实现盈亏
+		"totalWalletBalance":    totalBalance - totalUnrealizedProfit, // 钱包余额 = 总净值 - 未实现盈亏
+		"availableBalance":      availableBalance,                     // 可用余额
+		"totalUnrealizedProfit": totalUnrealizedProfit,                // 未实现盈亏
 	}, nil
 }
 

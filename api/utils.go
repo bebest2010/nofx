@@ -46,7 +46,7 @@ func SanitizeExchangeConfigForLog(exchanges map[string]struct {
 	AsterPrivateKey       string `json:"aster_private_key"`
 	// apex 特定字段
 	ApexOmniSeeds  string `json:"apexOmniSeeds"`
-	ApexApiKey     string `json:"apexApiKey"`
+	ApexApikey     string `json:"apexApikey"`
 	ApexSecret     string `json:"apexSecret"`
 	ApexPassphrase string `json:"apexPassphrase"`
 }) map[string]interface{} {

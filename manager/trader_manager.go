@@ -254,7 +254,7 @@ func (tm *TraderManager) addTraderFromDB(traderCfg *config.TraderRecord, aiModel
 		traderConfig.AsterPrivateKey = exchangeCfg.AsterPrivateKey
 	} else if exchangeCfg.ID == "apex" {
 		traderConfig.ApexOmniSeeds = exchangeCfg.ApexOmniSeeds
-		traderConfig.ApexAPIKey = exchangeCfg.ApexApiKey
+		traderConfig.ApexAPIKey = exchangeCfg.ApexApikey
 		traderConfig.ApexSecret = exchangeCfg.ApexSecret
 		traderConfig.ApexPassphrase = exchangeCfg.ApexPassphrase
 	}
@@ -365,7 +365,7 @@ func (tm *TraderManager) AddTraderFromDB(traderCfg *config.TraderRecord, aiModel
 		traderConfig.AsterPrivateKey = exchangeCfg.AsterPrivateKey
 	} else if exchangeCfg.ID == "apex" {
 		traderConfig.ApexOmniSeeds = exchangeCfg.ApexOmniSeeds
-		traderConfig.ApexAPIKey = exchangeCfg.ApexApiKey
+		traderConfig.ApexAPIKey = exchangeCfg.ApexApikey
 		traderConfig.ApexSecret = exchangeCfg.ApexSecret
 		traderConfig.ApexPassphrase = exchangeCfg.ApexPassphrase
 	}
@@ -1071,7 +1071,7 @@ func (tm *TraderManager) loadSingleTrader(traderCfg *config.TraderRecord, aiMode
 		traderConfig.AsterPrivateKey = exchangeCfg.AsterPrivateKey
 	} else if exchangeCfg.ID == "apex" {
 		traderConfig.ApexOmniSeeds = exchangeCfg.ApexOmniSeeds
-		traderConfig.ApexAPIKey = exchangeCfg.ApexApiKey
+		traderConfig.ApexAPIKey = exchangeCfg.ApexApikey
 		traderConfig.ApexSecret = exchangeCfg.ApexSecret
 		traderConfig.ApexPassphrase = exchangeCfg.ApexPassphrase
 	}

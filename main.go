@@ -151,6 +151,7 @@ func loadBetaCodesToDatabase(database *config.Database) error {
 }
 
 func main() {
+
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║    🤖 AI多模型交易系统 - 支持 DeepSeek & Qwen            ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")

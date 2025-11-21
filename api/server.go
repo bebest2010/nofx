@@ -461,7 +461,7 @@ type UpdateExchangeConfigRequest struct {
 
 		// apex 特定字段
 		ApexOmniSeeds  string `json:"apexOmniSeeds"`
-		ApexApiKey     string `json:"apexApiKey"`
+		ApexApikey     string `json:"apexApikey"`
 		ApexSecret     string `json:"apexSecret"`
 		ApexPassphrase string `json:"apexPassphrase"`
 	} `json:"exchanges"`
@@ -591,7 +591,7 @@ func (s *Server) handleCreateTrader(c *gin.Context) {
 			}
 			tempTrader, createErr = trader.NewApexTrader(
 				exchangeCfg.ApexOmniSeeds,
-				exchangeCfg.ApexApiKey,
+				exchangeCfg.ApexApikey,
 				exchangeCfg.ApexSecret,
 				exchangeCfg.ApexPassphrase,
 				exchangeCfg.Testnet,
@@ -1142,7 +1142,7 @@ func (s *Server) handleUpdateExchangeConfigs(c *gin.Context) {
 	// 更新每个交易所的配置
 
 	for exchangeID, exchangeData := range req.Exchanges {
-		err := s.database.UpdateExchange(userID, exchangeID, exchangeData.Enabled, exchangeData.APIKey, exchangeData.SecretKey, exchangeData.Testnet, exchangeData.HyperliquidWalletAddr, exchangeData.AsterUser, exchangeData.AsterSigner, exchangeData.AsterPrivateKey, exchangeData.ApexOmniSeeds, exchangeData.ApexApiKey, exchangeData.ApexSecret, exchangeData.ApexPassphrase)
+		err := s.database.UpdateExchange(userID, exchangeID, exchangeData.Enabled, exchangeData.APIKey, exchangeData.SecretKey, exchangeData.Testnet, exchangeData.HyperliquidWalletAddr, exchangeData.AsterUser, exchangeData.AsterSigner, exchangeData.AsterPrivateKey, exchangeData.ApexOmniSeeds, exchangeData.ApexApikey, exchangeData.ApexSecret, exchangeData.ApexPassphrase)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("更新交易所 %s 失败: %v", exchangeID, err)})
 			return
