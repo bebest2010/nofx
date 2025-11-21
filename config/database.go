@@ -1083,6 +1083,7 @@ func (d *Database) GetTraderConfig(userID, traderID string) (*TraderRecord, *AIM
 		&exchange.ID, &exchange.UserID, &exchange.Name, &exchange.Type, &exchange.Enabled,
 		&exchange.APIKey, &exchange.SecretKey, &exchange.Testnet,
 		&exchange.HyperliquidWalletAddr, &exchange.AsterUser, &exchange.AsterSigner, &exchange.AsterPrivateKey,
+		&exchange.ApexOmniSeeds, &exchange.ApexApikey, &exchange.ApexSecret, &exchange.ApexPassphrase,
 		&exchange.CreatedAt, &exchange.UpdatedAt,
 	)
 

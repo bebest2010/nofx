@@ -1250,6 +1250,7 @@ func (s *Server) handleGetTraderConfig(c *gin.Context) {
 
 	traderConfig, _, _, err := s.database.GetTraderConfig(userID, traderID)
 	if err != nil {
+		log.Printf("获取交易员userID %v, traderID %v,配置失败: %v", userID, traderID, err)
 		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("获取交易员配置失败: %v", err)})
 		return
 	}
