@@ -199,6 +199,10 @@ func NewAutoTrader(config AutoTraderConfig, database interface{}, userID string)
 		}
 	case "apex":
 		log.Printf("🏦 [%s] 使用Apex交易", config.Name)
+		if config.ApexOmniSeeds == "" || config.ApexAPIKey == "" {
+			log.Printf("apex config is error %v", config)
+			panic("no data")
+		}
 		trader, err = NewApexTrader(config.ApexOmniSeeds, config.ApexAPIKey, config.ApexSecret, config.ApexPassphrase, config.ApexTestnet)
 		if err != nil {
 			return nil, fmt.Errorf("初始化Apex交易器失败: %w", err)

@@ -28,9 +28,9 @@ type DatabaseInterface interface {
 	GetAIModels(userID string) ([]*AIModelConfig, error)
 	UpdateAIModel(userID, id string, enabled bool, apiKey, customAPIURL, customModelName string) error
 	GetExchanges(userID string) ([]*ExchangeConfig, error)
-	UpdateExchange(userID, id string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey string) error
+	UpdateExchange(userID, id string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey, apexOmniSeeds, apexApikey, apexSecret, apexPassphrase string) error
 	CreateAIModel(userID, id, name, provider string, enabled bool, apiKey, customAPIURL string) error
-	CreateExchange(userID, id, name, typ string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey string) error
+	CreateExchange(userID, id, name, typ string, enabled bool, apiKey, secretKey string, testnet bool, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey, apexOmniSeeds, apexApikey, apexSecret, apexPassphrase string) error
 	CreateTrader(trader *TraderRecord) error
 	GetTraders(userID string) ([]*TraderRecord, error)
 	UpdateTraderStatus(userID, id string, isRunning bool) error
@@ -906,7 +906,7 @@ func (d *Database) UpdateExchange(userID, id string, enabled bool, apiKey, secre
 		_, err = d.db.Exec(`
 			INSERT INTO exchanges (id, user_id, name, type, enabled, api_key, secret_key, testnet,
 			                       hyperliquid_wallet_addr, aster_user, aster_signer, aster_private_key, apex_omni_seeds, apex_api_key, apex_secret, apex_passphrase, created_at, updated_at)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
 		`, id, userID, name, typ, enabled, apiKey, secretKey, testnet, hyperliquidWalletAddr, asterUser, asterSigner, asterPrivateKey, apexOmniSeeds, apexApikey, apexSecret, apexPassphrase)
 
 		if err != nil {

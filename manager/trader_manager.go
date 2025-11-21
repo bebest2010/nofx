@@ -252,6 +252,11 @@ func (tm *TraderManager) addTraderFromDB(traderCfg *config.TraderRecord, aiModel
 		traderConfig.AsterUser = exchangeCfg.AsterUser
 		traderConfig.AsterSigner = exchangeCfg.AsterSigner
 		traderConfig.AsterPrivateKey = exchangeCfg.AsterPrivateKey
+	} else if exchangeCfg.ID == "apex" {
+		traderConfig.ApexOmniSeeds = exchangeCfg.ApexOmniSeeds
+		traderConfig.ApexAPIKey = exchangeCfg.ApexApiKey
+		traderConfig.ApexSecret = exchangeCfg.ApexSecret
+		traderConfig.ApexPassphrase = exchangeCfg.ApexPassphrase
 	}
 
 	// 根据AI模型设置API密钥
@@ -358,6 +363,11 @@ func (tm *TraderManager) AddTraderFromDB(traderCfg *config.TraderRecord, aiModel
 		traderConfig.AsterUser = exchangeCfg.AsterUser
 		traderConfig.AsterSigner = exchangeCfg.AsterSigner
 		traderConfig.AsterPrivateKey = exchangeCfg.AsterPrivateKey
+	} else if exchangeCfg.ID == "apex" {
+		traderConfig.ApexOmniSeeds = exchangeCfg.ApexOmniSeeds
+		traderConfig.ApexAPIKey = exchangeCfg.ApexApiKey
+		traderConfig.ApexSecret = exchangeCfg.ApexSecret
+		traderConfig.ApexPassphrase = exchangeCfg.ApexPassphrase
 	}
 
 	// 根据AI模型设置API密钥
@@ -1059,6 +1069,11 @@ func (tm *TraderManager) loadSingleTrader(traderCfg *config.TraderRecord, aiMode
 		traderConfig.AsterUser = exchangeCfg.AsterUser
 		traderConfig.AsterSigner = exchangeCfg.AsterSigner
 		traderConfig.AsterPrivateKey = exchangeCfg.AsterPrivateKey
+	} else if exchangeCfg.ID == "apex" {
+		traderConfig.ApexOmniSeeds = exchangeCfg.ApexOmniSeeds
+		traderConfig.ApexAPIKey = exchangeCfg.ApexApiKey
+		traderConfig.ApexSecret = exchangeCfg.ApexSecret
+		traderConfig.ApexPassphrase = exchangeCfg.ApexPassphrase
 	}
 
 	// 根据AI模型设置API密钥

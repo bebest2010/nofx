@@ -149,6 +149,16 @@ export function useTraderActions({
             )
           }
 
+          // Aster 交易所需要特殊字段
+          if (e.id === 'apex') {
+            return (
+              e.apexOmniSeeds &&
+              e.apexOmniSeeds.trim() !== '' &&
+              e.apexApikey &&
+              e.apexApikey.trim() !== ''
+            )
+          }
+
           // Hyperliquid 需要钱包地址
           if (e.id === 'hyperliquid') {
             return (
@@ -471,6 +481,10 @@ export function useTraderActions({
               aster_user: exchange.asterUser || '',
               aster_signer: exchange.asterSigner || '',
               aster_private_key: exchange.asterPrivateKey || '',
+              apex_omni_seeds: exchange.apexOmniSeeds || '',
+              apex_apikey: exchange.apexApikey || '',
+              apex_secret: exchange.apexSecret || '',
+              apex_passphrase: exchange.apexPassphrase || '',
             },
           ])
         ),
@@ -497,7 +511,11 @@ export function useTraderActions({
     hyperliquidWalletAddr?: string,
     asterUser?: string,
     asterSigner?: string,
-    asterPrivateKey?: string
+    asterPrivateKey?: string,
+    apexOmniseeds?: string,
+    apexApikey?: string,
+    apexSecret?: string,
+    apexPassphrase?: string,
   ) => {
     try {
       // 找到要配置的交易所(从supportedExchanges中)
@@ -527,6 +545,10 @@ export function useTraderActions({
                   asterUser,
                   asterSigner,
                   asterPrivateKey,
+                  apexOmniseeds,
+                  apexApikey,
+                  apexSecret,
+                  apexPassphrase,
                   enabled: true,
                 }
               : e
@@ -542,6 +564,10 @@ export function useTraderActions({
           asterUser,
           asterSigner,
           asterPrivateKey,
+          apexOmniseeds,
+                  apexApikey,
+                  apexSecret,
+                  apexPassphrase,
           enabled: true,
         }
         updatedExchanges = [...(allExchanges || []), newExchange]
@@ -560,6 +586,10 @@ export function useTraderActions({
               aster_user: exchange.asterUser || '',
               aster_signer: exchange.asterSigner || '',
               aster_private_key: exchange.asterPrivateKey || '',
+              apex_omni_seeds: exchange.apexOmniSeeds || '',
+              apex_apikey: exchange.apexApikey || '',
+              apex_secret: exchange.apexSecret || '',
+              apex_passphrase: exchange.apexPassphrase || '',
             },
           ])
         ),

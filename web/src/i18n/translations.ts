@@ -185,7 +185,7 @@ export const translations = {
     useOfficialAPI: 'Use official API service',
     useCustomAPI: 'Use custom API endpoint',
 
-    // Exchange Configuration
+    // Exchange Configuration,
     secretKey: 'Secret Key',
     privateKey: 'Private Key',
     walletAddress: 'Wallet Address',
@@ -1033,6 +1033,7 @@ export const translations = {
     useCustomAPI: '使用自定义API端点',
 
     // Exchange Configuration
+    omniKey :'Omni Key',
     secretKey: '密钥',
     privateKey: '私钥',
     walletAddress: '钱包地址',

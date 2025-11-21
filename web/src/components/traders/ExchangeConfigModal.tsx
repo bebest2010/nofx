@@ -27,7 +27,11 @@ interface ExchangeConfigModalProps {
     hyperliquidWalletAddr?: string,
     asterUser?: string,
     asterSigner?: string,
-    asterPrivateKey?: string
+    asterPrivateKey?: string,
+    apexOmniSeeds?: string,
+    apexApikey?: string,
+    apexSecret?: string,
+    apexPassphrase ?: string
   ) => Promise<void>
   onDelete: (exchangeId: string) => void
   onClose: () => void
@@ -67,6 +71,12 @@ export function ExchangeConfigModal({
   const [asterSigner, setAsterSigner] = useState('')
   const [asterPrivateKey, setAsterPrivateKey] = useState('')
 
+  // apex 特定字段
+  const [apexOmniSeeds, setApexOmniSeeds] = useState('')
+  const [apexApikey, setApexApikey] = useState('')
+  const [apexSecret, setApexSecret] = useState('')
+  const [apexPassphrase, setApexPassphrase] = useState('')
+
   // Hyperliquid 特定字段
   const [hyperliquidWalletAddr, setHyperliquidWalletAddr] = useState('')
 
@@ -95,6 +105,12 @@ export function ExchangeConfigModal({
 
       // Hyperliquid 字段
       setHyperliquidWalletAddr(selectedExchange.hyperliquidWalletAddr || '')
+
+      // apex 字段
+      setApexOmniSeeds(selectedExchange.apexOmniSeeds || '')
+      setApexApikey(selectedExchange.apexApikey || '')
+      setApexSecret(selectedExchange.apexSecret || '')
+      setApexPassphrase(selectedExchange.apexPassphrase || '')
     }
   }, [editingExchangeId, selectedExchange])
 
@@ -225,7 +241,24 @@ export function ExchangeConfigModal({
         asterSigner.trim(),
         asterPrivateKey.trim()
       )
-    } else if (selectedExchange?.id === 'okx') {
+    } else if (selectedExchange?.id === 'apex') {
+      if (!apexOmniSeeds.trim() || !apexApikey.trim() || !apexSecret.trim()|| !apexPassphrase.trim())
+        return
+      await onSave(
+        selectedExchangeId,
+        '',
+        '',
+        testnet,
+        undefined,
+        '',
+        '',
+        '',
+        apexOmniSeeds.trim(),
+        apexApikey.trim(),
+        apexSecret.trim(),
+        apexPassphrase.trim()
+      )
+    }else if (selectedExchange?.id === 'okx') {
       if (!apiKey.trim() || !secretKey.trim() || !passphrase.trim()) return
       await onSave(selectedExchangeId, apiKey.trim(), secretKey.trim(), testnet)
     } else {
@@ -373,7 +406,8 @@ export function ExchangeConfigModal({
                 {(selectedExchange.id === 'binance' ||
                   selectedExchange.type === 'cex') &&
                   selectedExchange.id !== 'hyperliquid' &&
-                  selectedExchange.id !== 'aster' && (
+                  selectedExchange.id !== 'aster' &&
+                  selectedExchange.id !== 'apex'  &&(
                     <>
                       {/* 币安用户配置提示 (D1 方案) */}
                       {selectedExchange.id === 'binance' && (
@@ -678,6 +712,116 @@ export function ExchangeConfigModal({
                         type="password"
                         value={asterPrivateKey}
                         onChange={(e) => setAsterPrivateKey(e.target.value)}
+                        placeholder={t('enterPrivateKey', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* apex 交易所的字段 */}
+                {selectedExchange.id === 'apex' && (
+                  <>
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexOmniSeeds', language)}
+                      </label>
+                      <input
+                        type="text"
+                        value={apexOmniSeeds}
+                        onChange={(e) => setApexOmniSeeds(e.target.value)}
+                        placeholder={t('enterOmniSeeds', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexApikey', language)}
+                        <Tooltip content={t('apexApikeyDesc', language)}>
+                          <HelpCircle
+                            className="w-4 h-4 cursor-help"
+                            style={{ color: '#F0B90B' }}
+                          />
+                        </Tooltip>
+                      </label>
+                      <input
+                        type="text"
+                        value={apexApikey}
+                        onChange={(e) => setApexApikey(e.target.value)}
+                        placeholder={t('enterApikey', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexSecret', language)}
+                        <Tooltip content={t('apexApiSecretDesc', language)}>
+                          <HelpCircle
+                            className="w-4 h-4 cursor-help"
+                            style={{ color: '#F0B90B' }}
+                          />
+                        </Tooltip>
+                      </label>
+                      <input
+                        type="password"
+                        value={apexSecret}
+                        onChange={(e) => setApexSecret(e.target.value)}
+                        placeholder={t('enterPrivateKey', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexPassphrase', language)}
+                        <Tooltip content={t('apexPassphraseDesc', language)}>
+                          <HelpCircle
+                            className="w-4 h-4 cursor-help"
+                            style={{ color: '#F0B90B' }}
+                          />
+                        </Tooltip>
+                      </label>
+                      <input
+                        type="password"
+                        value={apexPassphrase}
+                        onChange={(e) => setApexPassphrase(e.target.value)}
                         placeholder={t('enterPrivateKey', language)}
                         className="w-full px-3 py-2 rounded"
                         style={{

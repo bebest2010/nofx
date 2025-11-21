@@ -120,6 +120,11 @@ export interface Exchange {
   asterUser?: string
   asterSigner?: string
   asterPrivateKey?: string
+
+  apexOmniSeeds?: string
+  apexApikey?: string
+  apexSecret?: string
+  apexPassphrase?: string
 }
 
 export interface CreateTraderRequest {

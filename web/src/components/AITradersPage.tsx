@@ -164,6 +164,9 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
         return e.hyperliquidWalletAddr && e.hyperliquidWalletAddr.trim() !== ''
       }
       // 其他交易所：如果已启用，说明已配置（后端返回的已配置交易所会有 enabled: true）
+      if (e.id === 'apex') {
+        return e.apexOmniSeeds && e.apexOmniSeeds.trim() !== ''
+      }
       return e.enabled
     }) || []
 
@@ -189,6 +192,9 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
         return e.hyperliquidWalletAddr && e.hyperliquidWalletAddr.trim() !== ''
       }
 
+      if (e.id === 'apex') {
+        return e.apexOmniSeeds && e.apexOmniSeeds.trim() !== ''
+      }
       // 其他交易所：如果已启用，说明已配置完整（后端只返回已配置的交易所）
       return true
     }) || []
@@ -564,6 +570,10 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
         asterUser: '',
         asterSigner: '',
         asterPrivateKey: '',
+        apexOmniSeeds:'',
+        apexApikey:'',
+        apexSecret:'',
+        apexPassphrase:'',
         enabled: false,
       }),
       buildRequest: (exchanges) => ({
@@ -579,6 +589,10 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
               aster_user: exchange.asterUser || '',
               aster_signer: exchange.asterSigner || '',
               aster_private_key: exchange.asterPrivateKey || '',
+              apex_omni_seeds: exchange.apexOmniSeeds || '',
+              apexApikey: exchange.apexApikey || '',
+              apexSecret: exchange.apexSecret || '',
+              apexPassphrase: exchange.apexPassphrase || '',
             },
           ])
         ),
@@ -605,7 +619,11 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
     hyperliquidWalletAddr?: string,
     asterUser?: string,
     asterSigner?: string,
-    asterPrivateKey?: string
+    asterPrivateKey?: string,
+    apexOmniSeeds?: string,
+    apexApikey?: string,
+    apexSecret?: string,
+    apexPassphrase?: string
   ) => {
     try {
       // 找到要配置的交易所（从supportedExchanges中）
@@ -635,6 +653,10 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
                   asterUser,
                   asterSigner,
                   asterPrivateKey,
+                  apexOmniSeeds,
+                  apexApikey,
+                  apexSecret,
+                  apexPassphrase,
                   enabled: true,
                 }
               : e
@@ -650,6 +672,10 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
           asterUser,
           asterSigner,
           asterPrivateKey,
+          apexOmniSeeds,
+                  apexApikey,
+                  apexSecret,
+                  apexPassphrase,
           enabled: true,
         }
         updatedExchanges = [...(allExchanges || []), newExchange]
@@ -668,6 +694,10 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
               aster_user: exchange.asterUser || '',
               aster_signer: exchange.asterSigner || '',
               aster_private_key: exchange.asterPrivateKey || '',
+              apex_omni_seeds: exchange.apexOmniSeeds || '',
+              apex_apikey: exchange.apexApikey || '',
+              apex_secret: exchange.apexSecret || '',
+              apex_passphrase: exchange.apexPassphrase || '',
             },
           ])
         ),
@@ -1762,7 +1792,11 @@ function ExchangeConfigModal({
     hyperliquidWalletAddr?: string,
     asterUser?: string,
     asterSigner?: string,
-    asterPrivateKey?: string
+    asterPrivateKey?: string,
+    apexOmniSeeds?: string,
+    apexApikey?: string,
+    apexSecret?: string,
+    apexPassphrase?: string
   ) => Promise<void>
   onDelete: (exchangeId: string) => void
   onClose: () => void
@@ -1793,6 +1827,12 @@ function ExchangeConfigModal({
   const [asterSigner, setAsterSigner] = useState('')
   const [asterPrivateKey, setAsterPrivateKey] = useState('')
 
+   // apex 特定字段
+   const [apexOmniSeeds, setApexOmniSeeds] = useState('')
+   const [apexApikey, setApexApikey] = useState('')
+   const [apexSecret, setApexSecret] = useState('')
+   const [apexPassphrase, setApexPassphrase] = useState('')
+
   // Hyperliquid 特定字段
   const [hyperliquidWalletAddr, setHyperliquidWalletAddr] = useState('')
 
@@ -1818,6 +1858,12 @@ function ExchangeConfigModal({
       setAsterUser(selectedExchange.asterUser || '')
       setAsterSigner(selectedExchange.asterSigner || '')
       setAsterPrivateKey('') // Don't load existing private key for security
+
+      // apex 字段
+      setApexOmniSeeds(selectedExchange.apexOmniSeeds || '')
+      setApexApikey(selectedExchange.apexApikey || '')
+      setApexSecret(selectedExchange.apexSecret || '')
+      setApexPassphrase(selectedExchange.apexPassphrase || '')
 
       // Hyperliquid 字段
       setHyperliquidWalletAddr(selectedExchange.hyperliquidWalletAddr || '')
@@ -1951,7 +1997,24 @@ function ExchangeConfigModal({
         asterSigner.trim(),
         asterPrivateKey.trim()
       )
-    } else if (selectedExchange?.id === 'okx') {
+    }else if (selectedExchange?.id === 'apex') {
+      if (!apexOmniSeeds.trim() || !apexApikey.trim() || !apexSecret.trim()|| !apexPassphrase.trim())
+        return
+      await onSave(
+        selectedExchangeId,
+        '',
+        '',
+        testnet,
+        undefined,
+        '',
+        '',
+        '',
+        apexOmniSeeds.trim(),
+        apexApikey.trim(),
+        apexSecret.trim(),
+        apexPassphrase.trim()
+      )
+    }else if (selectedExchange?.id === 'okx') {
       if (!apiKey.trim() || !secretKey.trim() || !passphrase.trim()) return
       await onSave(selectedExchangeId, apiKey.trim(), secretKey.trim(), testnet)
     } else {
@@ -2099,7 +2162,8 @@ function ExchangeConfigModal({
                 {(selectedExchange.id === 'binance' ||
                   selectedExchange.type === 'cex') &&
                   selectedExchange.id !== 'hyperliquid' &&
-                  selectedExchange.id !== 'aster' && (
+                  selectedExchange.id !== 'aster' && 
+                  selectedExchange.id !== 'apex' &&(
                     <>
                       {/* 币安用户配置提示 (D1 方案) */}
                       {selectedExchange.id === 'binance' && (
@@ -2417,6 +2481,115 @@ function ExchangeConfigModal({
                   </>
                 )}
 
+                {/* apex 交易所的字段 */}
+                {selectedExchange.id === 'apex' && (
+                  <>
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexOmniSeeds', language)}
+                      </label>
+                      <input
+                        type="text"
+                        value={apexOmniSeeds}
+                        onChange={(e) => setApexOmniSeeds(e.target.value)}
+                        placeholder={t('enterOmniSeeds', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexApikey', language)}
+                        <Tooltip content={t('apexApikeyDesc', language)}>
+                          <HelpCircle
+                            className="w-4 h-4 cursor-help"
+                            style={{ color: '#F0B90B' }}
+                          />
+                        </Tooltip>
+                      </label>
+                      <input
+                        type="text"
+                        value={apexApikey}
+                        onChange={(e) => setApexApikey(e.target.value)}
+                        placeholder={t('enterApikey', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexSecret', language)}
+                        <Tooltip content={t('apexApiSecretDesc', language)}>
+                          <HelpCircle
+                            className="w-4 h-4 cursor-help"
+                            style={{ color: '#F0B90B' }}
+                          />
+                        </Tooltip>
+                      </label>
+                      <input
+                        type="password"
+                        value={apexSecret}
+                        onChange={(e) => setApexSecret(e.target.value)}
+                        placeholder={t('enterPrivateKey', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                        style={{ color: '#EAECEF' }}
+                      >
+                        {t('apexPassphrase', language)}
+                        <Tooltip content={t('apexPassphraseDesc', language)}>
+                          <HelpCircle
+                            className="w-4 h-4 cursor-help"
+                            style={{ color: '#F0B90B' }}
+                          />
+                        </Tooltip>
+                      </label>
+                      <input
+                        type="password"
+                        value={apexPassphrase}
+                        onChange={(e) => setApexPassphrase(e.target.value)}
+                        placeholder={t('enterPrivateKey', language)}
+                        className="w-full px-3 py-2 rounded"
+                        style={{
+                          background: '#0B0E11',
+                          border: '1px solid #2B3139',
+                          color: '#EAECEF',
+                        }}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
                 {/* Hyperliquid 交易所的字段 */}
                 {selectedExchange.id === 'hyperliquid' && (
                   <>

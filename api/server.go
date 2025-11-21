@@ -585,6 +585,10 @@ func (s *Server) handleCreateTrader(c *gin.Context) {
 				exchangeCfg.AsterPrivateKey,
 			)
 		case "apex":
+			if exchangeCfg.ApexOmniSeeds == "" {
+				log.Printf("exchangeCfg is %v", exchangeCfg)
+				panic("no seeds")
+			}
 			tempTrader, createErr = trader.NewApexTrader(
 				exchangeCfg.ApexOmniSeeds,
 				exchangeCfg.ApexApiKey,
