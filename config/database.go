@@ -128,6 +128,11 @@ func (d *Database) createTables() error {
 			aster_user TEXT DEFAULT '',
 			aster_signer TEXT DEFAULT '',
 			aster_private_key TEXT DEFAULT '',
+			-- Apex 特定字段
+			apex_omni_seeds TEXT DEFAULT '',
+			apex_api_key TEXT DEFAULT '',
+			apex_secret TEXT DEFAULT '',
+			apex_passphrase TEXT DEFAULT '',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -304,6 +309,7 @@ func (d *Database) initDefaultData() error {
 		{"binance", "Binance Futures", "binance"},
 		{"hyperliquid", "Hyperliquid", "hyperliquid"},
 		{"aster", "Aster DEX", "aster"},
+		{"apex", "Apex omni exchange", "apex"},
 	}
 
 	for _, exchange := range exchanges {
@@ -1054,6 +1060,10 @@ func (d *Database) GetTraderConfig(userID, traderID string) (*TraderRecord, *AIM
 			COALESCE(e.aster_user, '') as aster_user,
 			COALESCE(e.aster_signer, '') as aster_signer,
 			COALESCE(e.aster_private_key, '') as aster_private_key,
+			COALESCE(e.apex_omni_seeds, '') as apex_omni_seeds,
+			COALESCE(e.apex_api_key, '') as apex_api_key,
+			COALESCE(e.apex_secret, '') as apex_secret,
+			COALESCE(e.apex_passphrase, '') as apex_passphrase,
 			e.created_at, e.updated_at
 		FROM traders t
 		JOIN ai_models a ON t.ai_model_id = a.id AND t.user_id = a.user_id

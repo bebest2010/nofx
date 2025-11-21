@@ -151,27 +151,6 @@ func loadBetaCodesToDatabase(database *config.Database) error {
 }
 
 func main() {
-
-	// apex origin test data
-	/*
-			zklinkOmniSeeds := "0x50d02f986e686399cc7963682c8d160662cbb4e58a17f57e9501c5df1ca5505679b61f7f94e48fbf537f18799733cd02fc6b0b6c9cfcdda4f3a8cddf5bdc08f41b"
-			apiKey := "2a58daa7-aaf6-e8b9-c105-e29e3542524f"
-			passPhase := "EGjfUJUHMu8y5AbQ4xw4"
-			secret := "Yq5Vr7mJNfOJZirsxbIa_Hmf-3jizWAuYAC_5afn"
-			traderExample, err := trader.NewApexTrader(zklinkOmniSeeds, apiKey, secret, passPhase, true)
-
-			_, err = traderExample.GetBalance()
-			if err != nil {
-				fmt.Println("GetBalance err", err)
-				return
-			}
-			_, err = traderExample.OpenLong("ETH-USDT", 1.0, 10)
-
-		 position, err := traderExample.GetPositions()
-		fmt.Printf("price %#v, err %v\n", position, err)
-		return
-	*/
-
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║    🤖 AI多模型交易系统 - 支持 DeepSeek & Qwen            ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
