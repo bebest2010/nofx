@@ -288,13 +288,21 @@ func (t *ApexTrader) GetBalance() (map[string]interface{}, error) {
 	client := NewApexHttpClient(t.baseURL, t.apikey, t.secret, t.passphrase, WithBaseURL(t.baseURL), WithDebug(true))
 	accountResult, err := client.NewUtaApexServiceNoParams().GetAccountBalance(context.Background())
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		log.Printf("❌ Apex GetBalance API调用失败: %v", err)
+		return nil, fmt.Errorf("API调用失败: %w", err)
 	}
 	// fmt.Println(PrettyPrint(accountResult))
 	// 查找USDT余额
 	if accountResult.Code != 0 {
-		return nil, errors.New(accountResult.Message)
+		errorMsg := accountResult.Message
+		if errorMsg == "" {
+			errorMsg = accountResult.Msg
+		}
+		if errorMsg == "" {
+			errorMsg = fmt.Sprintf("API返回错误码: %d", accountResult.Code)
+		}
+		log.Printf("❌ Apex GetBalance API返回错误: %s", errorMsg)
+		return nil, fmt.Errorf("API错误: %s", errorMsg)
 	}
 	accountData, _ := json.Marshal(accountResult.Data)
 	if accountData == nil {
@@ -321,12 +329,20 @@ func (t *ApexTrader) GetPositions() ([]map[string]interface{}, error) {
 	client := NewApexHttpClient(t.baseURL, t.apikey, t.secret, t.passphrase, WithBaseURL(t.baseURL), WithDebug(true))
 	accountResult, err := client.NewUtaApexServiceNoParams().GetAccountSnapShot(context.Background())
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		log.Printf("❌ Apex GetPositions GetAccountSnapShot API调用失败: %v", err)
+		return nil, fmt.Errorf("API调用失败: %w", err)
 	}
 	// fmt.Println(PrettyPrint(accountResult))
 	if accountResult.Code != 0 {
-		return nil, errors.New(accountResult.Message)
+		errorMsg := accountResult.Message
+		if errorMsg == "" {
+			errorMsg = accountResult.Msg
+		}
+		if errorMsg == "" {
+			errorMsg = fmt.Sprintf("API返回错误码: %d", accountResult.Code)
+		}
+		log.Printf("❌ Apex GetPositions GetAccountSnapShot API返回错误: %s", errorMsg)
+		return nil, fmt.Errorf("API错误: %s", errorMsg)
 	}
 	accountData, _ := json.Marshal(accountResult.Data)
 	if accountData == nil {
@@ -341,7 +357,8 @@ func (t *ApexTrader) GetPositions() ([]map[string]interface{}, error) {
 	// 获取下账号信息
 	accountBalance, err := t.GetBalance()
 	if err != nil {
-		return nil, err
+		log.Printf("❌ Apex GetPositions GetBalance失败: %v", err)
+		return nil, fmt.Errorf("获取账户余额失败: %w", err)
 	}
 	remainBalance := accountBalance["totalWalletBalance"].(float64)
 	result := []map[string]interface{}{}

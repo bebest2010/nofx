@@ -774,15 +774,28 @@ func (d *Database) GetExchanges(userID string) ([]*ExchangeConfig, error) {
 	exchanges := make([]*ExchangeConfig, 0)
 	for rows.Next() {
 		var exchange ExchangeConfig
+		var createdAtStr, updatedAtStr string
 		err := rows.Scan(
 			&exchange.ID, &exchange.UserID, &exchange.Name, &exchange.Type,
 			&exchange.Enabled, &exchange.APIKey, &exchange.SecretKey, &exchange.Testnet,
 			&exchange.HyperliquidWalletAddr, &exchange.AsterUser,
 			&exchange.AsterSigner, &exchange.AsterPrivateKey, &exchange.ApexOmniSeeds, &exchange.ApexApikey, &exchange.ApexSecret, &exchange.ApexPassphrase,
-			&exchange.CreatedAt, &exchange.UpdatedAt,
+			&createdAtStr, &updatedAtStr,
 		)
 		if err != nil {
 			return nil, err
+		}
+		
+		// 解析时间字符串
+		if createdAtStr != "" {
+			if t, err := time.Parse("2006-01-02 15:04:05", createdAtStr); err == nil {
+				exchange.CreatedAt = t
+			}
+		}
+		if updatedAtStr != "" {
+			if t, err := time.Parse("2006-01-02 15:04:05", updatedAtStr); err == nil {
+				exchange.UpdatedAt = t
+			}
 		}
 
 		// 解密敏感字段
@@ -849,7 +862,7 @@ func (d *Database) UpdateExchange(userID, id string, enabled bool, apiKey, secre
 
 	if apexPassphrase != "" {
 		setClauses = append(setClauses, "apex_passphrase = ?")
-		args = append(args, apexSecret)
+		args = append(args, apexPassphrase)
 	}
 
 	// WHERE 条件
@@ -1037,6 +1050,7 @@ func (d *Database) GetTraderConfig(userID, traderID string) (*TraderRecord, *AIM
 	var trader TraderRecord
 	var aiModel AIModelConfig
 	var exchange ExchangeConfig
+	var traderCreatedAtStr, traderUpdatedAtStr, modelCreatedAtStr, modelUpdatedAtStr, exchangeCreatedAtStr, exchangeUpdatedAtStr string
 
 	err := d.db.QueryRow(`
 		SELECT
@@ -1076,16 +1090,52 @@ func (d *Database) GetTraderConfig(userID, traderID string) (*TraderRecord, *AIM
 		&trader.UseCoinPool, &trader.UseOITop,
 		&trader.CustomPrompt, &trader.OverrideBasePrompt, &trader.SystemPromptTemplate,
 		&trader.IsCrossMargin,
-		&trader.CreatedAt, &trader.UpdatedAt,
+		&traderCreatedAtStr, &traderUpdatedAtStr,
 		&aiModel.ID, &aiModel.UserID, &aiModel.Name, &aiModel.Provider, &aiModel.Enabled, &aiModel.APIKey,
 		&aiModel.CustomAPIURL, &aiModel.CustomModelName,
-		&aiModel.CreatedAt, &aiModel.UpdatedAt,
+		&modelCreatedAtStr, &modelUpdatedAtStr,
 		&exchange.ID, &exchange.UserID, &exchange.Name, &exchange.Type, &exchange.Enabled,
 		&exchange.APIKey, &exchange.SecretKey, &exchange.Testnet,
 		&exchange.HyperliquidWalletAddr, &exchange.AsterUser, &exchange.AsterSigner, &exchange.AsterPrivateKey,
 		&exchange.ApexOmniSeeds, &exchange.ApexApikey, &exchange.ApexSecret, &exchange.ApexPassphrase,
-		&exchange.CreatedAt, &exchange.UpdatedAt,
+		&exchangeCreatedAtStr, &exchangeUpdatedAtStr,
 	)
+	
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	
+	// 解析时间字符串
+	if traderCreatedAtStr != "" {
+		if t, err := time.Parse("2006-01-02 15:04:05", traderCreatedAtStr); err == nil {
+			trader.CreatedAt = t
+		}
+	}
+	if traderUpdatedAtStr != "" {
+		if t, err := time.Parse("2006-01-02 15:04:05", traderUpdatedAtStr); err == nil {
+			trader.UpdatedAt = t
+		}
+	}
+	if modelCreatedAtStr != "" {
+		if t, err := time.Parse("2006-01-02 15:04:05", modelCreatedAtStr); err == nil {
+			aiModel.CreatedAt = t
+		}
+	}
+	if modelUpdatedAtStr != "" {
+		if t, err := time.Parse("2006-01-02 15:04:05", modelUpdatedAtStr); err == nil {
+			aiModel.UpdatedAt = t
+		}
+	}
+	if exchangeCreatedAtStr != "" {
+		if t, err := time.Parse("2006-01-02 15:04:05", exchangeCreatedAtStr); err == nil {
+			exchange.CreatedAt = t
+		}
+	}
+	if exchangeUpdatedAtStr != "" {
+		if t, err := time.Parse("2006-01-02 15:04:05", exchangeUpdatedAtStr); err == nil {
+			exchange.UpdatedAt = t
+		}
+	}
 
 	if err != nil {
 		return nil, nil, nil, err

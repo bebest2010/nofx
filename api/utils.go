@@ -44,11 +44,11 @@ func SanitizeExchangeConfigForLog(exchanges map[string]struct {
 	AsterUser             string `json:"aster_user"`
 	AsterSigner           string `json:"aster_signer"`
 	AsterPrivateKey       string `json:"aster_private_key"`
-	// apex 特定字段
-	ApexOmniSeeds  string `json:"apexOmniSeeds"`
-	ApexApikey     string `json:"apexApikey"`
-	ApexSecret     string `json:"apexSecret"`
-	ApexPassphrase string `json:"apexPassphrase"`
+	// apex 特定字段（使用 snake_case 与前端保持一致）
+	ApexOmniSeeds  string `json:"apex_omni_seeds"`
+	ApexApikey     string `json:"apex_apikey"`
+	ApexSecret     string `json:"apex_secret"`
+	ApexPassphrase string `json:"apex_passphrase"`
 }) map[string]interface{} {
 	safe := make(map[string]interface{})
 	for exchangeID, cfg := range exchanges {
@@ -77,6 +77,20 @@ func SanitizeExchangeConfigForLog(exchanges map[string]struct {
 		}
 		if cfg.AsterSigner != "" {
 			safeExchange["aster_signer"] = cfg.AsterSigner
+		}
+
+		// Apex 字段脱敏
+		if cfg.ApexOmniSeeds != "" {
+			safeExchange["apex_omni_seeds"] = MaskSensitiveString(cfg.ApexOmniSeeds)
+		}
+		if cfg.ApexApikey != "" {
+			safeExchange["apex_apikey"] = MaskSensitiveString(cfg.ApexApikey)
+		}
+		if cfg.ApexSecret != "" {
+			safeExchange["apex_secret"] = MaskSensitiveString(cfg.ApexSecret)
+		}
+		if cfg.ApexPassphrase != "" {
+			safeExchange["apex_passphrase"] = MaskSensitiveString(cfg.ApexPassphrase)
 		}
 
 		safe[exchangeID] = safeExchange

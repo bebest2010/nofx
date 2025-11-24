@@ -459,11 +459,11 @@ type UpdateExchangeConfigRequest struct {
 		AsterSigner           string `json:"aster_signer"`
 		AsterPrivateKey       string `json:"aster_private_key"`
 
-		// apex 特定字段
-		ApexOmniSeeds  string `json:"apexOmniSeeds"`
-		ApexApikey     string `json:"apexApikey"`
-		ApexSecret     string `json:"apexSecret"`
-		ApexPassphrase string `json:"apexPassphrase"`
+		// apex 特定字段（使用 snake_case 与前端保持一致）
+		ApexOmniSeeds  string `json:"apex_omni_seeds"`
+		ApexApikey     string `json:"apex_apikey"`
+		ApexSecret     string `json:"apex_secret"`
+		ApexPassphrase string `json:"apex_passphrase"`
 	} `json:"exchanges"`
 }
 
@@ -864,8 +864,19 @@ func (s *Server) handleStartTrader(c *gin.Context) {
 
 	trader, err := s.traderManager.GetTrader(traderID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "交易员不存在"})
-		return
+		// 如果交易员不在内存中，尝试从数据库加载
+		log.Printf("📋 交易员 %s 不在内存中，尝试从数据库加载...", traderID)
+		if loadErr := s.traderManager.LoadTraderByID(s.database, userID, traderID); loadErr != nil {
+			log.Printf("❌ 加载交易员失败: %v", loadErr)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("加载交易员失败: %v", loadErr)})
+			return
+		}
+		// 重新获取交易员
+		trader, err = s.traderManager.GetTrader(traderID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "交易员不存在"})
+			return
+		}
 	}
 
 	// 检查交易员是否已经在运行
